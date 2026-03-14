@@ -142,13 +142,7 @@ function Planner() {
           </h1>
           <div className="flex items-center gap-3">
             <p className="text-zinc-500 text-xs tracking-wide">Organize. Focus. Rise every day.</p>
-            <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, rgba(39,39,42,0.8), transparent)" }} />
-            <span
-              className="text-[10px] font-bold tracking-[0.15em] uppercase px-2 py-0.5 rounded-full"
-              style={{ color: "#71717a", border: "1px solid rgba(63,63,70,0.5)", background: "rgba(24,24,27,0.6)" }}
-            >
-              {sections.length} sections
-            </span>
+            
           </div>
         </div>
 
