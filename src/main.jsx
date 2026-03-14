@@ -10,6 +10,10 @@ import AuthLayout from './component/Auth/AuthLayout.jsx';
 import HomePage from './pages/HomePage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import SignUpPage from './pages/SignUpPage.jsx';
+import Planner from './pages/PlannerPage.jsx';
+import CirclePage from './pages/CirclePage.jsx';
+import AnalyticsPage from './pages/AnalyticsPage.jsx';
+import NotificationPage from './pages/NotificationPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -33,6 +37,38 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={false}>
             <SignUpPage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/planner',
+        element: (
+          <AuthLayout authentication={true}>
+            <Planner />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/circles',
+        element: (
+          <AuthLayout authentication={true}>
+            <CirclePage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/analytics',
+        element: (
+          <AuthLayout authentication={true}>
+            <AnalyticsPage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/notifications',
+        element: (
+          <AuthLayout authentication={true}>
+            <NotificationPage />
           </AuthLayout>
         ),
       },
