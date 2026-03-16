@@ -20,11 +20,11 @@ function TodoItem({ todo, sectionId }) {
     <div
       className="flex items-start gap-2 rounded-lg px-2.5 py-2 transition-all duration-200 group/item"
       style={{
-        background: todo.completed ? "rgba(255,255,255,0.015)" : "rgba(255,255,255,0.03)",
-        border: `1px solid ${todo.completed ? "rgba(39,39,42,0.5)" : "rgba(39,39,42,0.8)"}`,
+        background: todo.completed ? "var(--bg-hover)" : "var(--bg-hover)",
+        border: `1px solid ${todo.completed ? "var(--border-subtle)" : "var(--border-default)"}`,
       }}
-      onMouseEnter={e => { if (!todo.completed) e.currentTarget.style.borderColor = "rgba(63,63,70,0.8)"; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = todo.completed ? "rgba(39,39,42,0.5)" : "rgba(39,39,42,0.8)"; }}
+      onMouseEnter={e => { if (!todo.completed) e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = todo.completed ? "var(--border-subtle)" : "var(--border-default)"; }}
     >
 
       {/* Checkbox */}
@@ -47,7 +47,7 @@ function TodoItem({ todo, sectionId }) {
       <p
         className="flex-1 text-xs leading-relaxed min-w-0 transition-all duration-200"
         style={{
-          color: todo.completed ? "#3f3f46" : "#a1a1aa",
+          color: todo.completed ? "var(--text-ghost)" : "var(--text-secondary)",
           textDecoration: todo.completed ? "line-through" : "none",
           wordBreak: "break-word",
         }}
@@ -60,9 +60,9 @@ function TodoItem({ todo, sectionId }) {
         onClick={handleDelete}
         title="Delete"
         className="shrink-0 mt-0.5 opacity-0 group-hover/item:opacity-100 w-4 h-4 rounded-md flex items-center justify-center transition-all duration-150 hover:bg-red-500/15 active:scale-90"
-        style={{ color: "#52525b" }}
+        style={{ color: "var(--text-faint)" }}
         onMouseEnter={e => e.currentTarget.style.color = "#f87171"}
-        onMouseLeave={e => e.currentTarget.style.color = "#52525b"}
+        onMouseLeave={e => e.currentTarget.style.color = "var(--text-faint)"}
       >
         <svg width="8" height="8" viewBox="0 0 9 9" fill="none">
           <path d="M1.5 1.5l6 6M7.5 1.5l-6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>

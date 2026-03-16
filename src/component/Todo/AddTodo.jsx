@@ -22,9 +22,9 @@ function AddTodo({ sectionId }) {
   return (
     <div
       className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-all duration-200"
-      style={{ background: "rgba(24,24,27,0.5)", border: "1px solid rgba(39,39,42,0.8)" }}
+      style={{ background: "var(--bg-input)", border: "1px solid rgba(39,39,42,0.8)" }}
     >
-      <svg width="9" height="9" viewBox="0 0 11 11" fill="none" className="shrink-0" style={{ color: "#3f3f46" }}>
+      <svg width="9" height="9" viewBox="0 0 11 11" fill="none" className="shrink-0" style={{ color: "var(--text-ghost)" }}>
         <path d="M5.5 1v9M1 5.5h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
       </svg>
 
@@ -34,9 +34,9 @@ function AddTodo({ sectionId }) {
         onKeyDown={handleKeyDown}
         placeholder="Add a task..."
         className="flex-1 bg-transparent text-xs placeholder:text-zinc-700 focus:outline-none min-w-0"
-        style={{ color: "#a1a1aa" }}
+        style={{ color: "var(--text-secondary)" }}
         onFocus={e => e.currentTarget.closest("div").style.borderColor = "rgba(249,115,22,0.35)"}
-        onBlur={e => e.currentTarget.closest("div").style.borderColor = "rgba(39,39,42,0.8)"}
+        onBlur={e => e.currentTarget.closest("div").style.borderColor = "var(--border-default)"}
       />
 
       <button

@@ -3,16 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { getTodoSections, createTodoSection } from "../api/todoSection";
 import { setSections, addSection } from "../store/todoSection.slice";
 import TodoSection from "../component/Todo/TodoSection";
+import GoogleCalendarView from "../component/Todo/GoogleCalendarView";
 
 function AddSectionCard({ creating, setCreating, title, setTitle, handleCreateSection }) {
   return (
     <div
       className="relative rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
-      style={{ minHeight: "90px", border: "1px dashed rgba(63,63,70,0.4)", background: "rgba(12,12,14,0.3)" }}
+      style={{ minHeight: "90px", border: "1px dashed rgba(63,63,70,0.4)", background: "var(--bg-card-alt)" }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(249,115,22,0.35)"; e.currentTarget.style.background = "rgba(249,115,22,0.02)"; }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(63,63,70,0.4)"; e.currentTarget.style.background = "rgba(12,12,14,0.3)"; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-subtle)"; e.currentTarget.style.background = "var(--bg-card-alt)"; }}
     >
-      {/* Dot grid texture */}
       <div className="absolute inset-0 opacity-[0.15] pointer-events-none"
         style={{ backgroundImage: "radial-gradient(circle, #52525b 1px, transparent 1px)", backgroundSize: "16px 16px" }} />
 
@@ -21,15 +21,15 @@ function AddSectionCard({ creating, setCreating, title, setTitle, handleCreateSe
           <button onClick={() => setCreating(true)} className="flex flex-col items-center gap-1.5 group">
             <div
               className="w-6 h-6 rounded-md flex items-center justify-center transition-all duration-200 group-hover:scale-110"
-              style={{ border: "1px dashed rgba(113,113,122,0.4)", color: "#52525b" }}
+              style={{ border: "1px dashed rgba(113,113,122,0.4)", color: "var(--text-faint)" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = "rgba(249,115,22,0.5)"; e.currentTarget.style.color = "#f97316"; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(113,113,122,0.4)"; e.currentTarget.style.color = "#52525b"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-hover)"; e.currentTarget.style.color = "var(--text-faint)"; }}
             >
               <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
                 <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             </div>
-            <span className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "#3f3f46" }}>
+            <span className="text-[9px] font-bold tracking-[0.25em] uppercase" style={{ color: "var(--text-ghost)" }}>
               New Section
             </span>
           </button>
@@ -41,9 +41,9 @@ function AddSectionCard({ creating, setCreating, title, setTitle, handleCreateSe
               placeholder="Section name..."
               autoFocus
               className="w-full px-2.5 py-1.5 rounded-lg text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none transition"
-              style={{ background: "rgba(24,24,27,0.8)", border: "1px solid rgba(63,63,70,0.8)", fontFamily: "'Syne', sans-serif" }}
+              style={{ background: "var(--bg-input)", border: "1px solid rgba(63,63,70,0.8)", fontFamily: "'Syne', sans-serif" }}
               onFocus={e => e.currentTarget.style.borderColor = "rgba(249,115,22,0.5)"}
-              onBlur={e => e.currentTarget.style.borderColor = "rgba(63,63,70,0.8)"}
+              onBlur={e => e.currentTarget.style.borderColor = "var(--border-hover)"}
             />
             <div className="flex gap-1.5">
               <button
@@ -56,9 +56,9 @@ function AddSectionCard({ creating, setCreating, title, setTitle, handleCreateSe
               <button
                 onClick={() => setCreating(false)}
                 className="px-2.5 py-1.5 rounded-lg text-[10px] font-semibold transition-all duration-150"
-                style={{ background: "rgba(24,24,27,0.8)", border: "1px solid rgba(63,63,70,0.6)", color: "#71717a" }}
-                onMouseEnter={e => { e.currentTarget.style.color = "#d4d4d8"; e.currentTarget.style.borderColor = "rgba(82,82,91,0.8)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color = "#71717a"; e.currentTarget.style.borderColor = "rgba(63,63,70,0.6)"; }}
+                style={{ background: "var(--bg-input)", border: "1px solid rgba(63,63,70,0.6)", color: "var(--text-muted)" }}
+                onMouseEnter={e => { e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.borderColor = "rgba(82,82,91,0.8)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "var(--border-hover)"; }}
               >
                 Cancel
               </button>
@@ -71,11 +71,16 @@ function AddSectionCard({ creating, setCreating, title, setTitle, handleCreateSe
 }
 
 function Planner() {
-
   const dispatch = useDispatch();
   const sections = useSelector(state => state.todoSections.sections);
 
-  const [title, setTitle] = useState("");
+  // Flat list of all todos across all sections — passed to GoogleCalendarPanel
+  const allTodos = useSelector(state => {
+    const bySection = state.todos.todosBySection;
+    return Object.values(bySection).flat();
+  });
+
+  const [title,    setTitle]    = useState("");
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
@@ -96,7 +101,6 @@ function Planner() {
 
   const cardProps = { creating, setCreating, title, setTitle, handleCreateSection };
 
-  // Distribute sections into N columns for masonry-like layout
   const intoColumns = (n) => {
     const cols = Array.from({ length: n }, () => []);
     sections.forEach((s, i) => cols[i % n].push(s));
@@ -105,14 +109,14 @@ function Planner() {
 
   return (
     <div
-      className="text-zinc-200 px-6 pt-7 pb-12"
-      style={{ fontFamily: "'DM Sans', sans-serif", background: "#080809" }}
+      className="text-zinc-200 px-4 sm:px-10 md:px-14 lg:px-20 pt-7 pb-12"
+      style={{ fontFamily: "'DM Sans', sans-serif", background: "var(--bg-base)" }}
     >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
       `}</style>
 
       {/* Glow orb */}
@@ -128,7 +132,7 @@ function Planner() {
             <span className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: "#f97316" }}>Rize Up</span>
           </div>
           <h1
-            className="font-black tracking-tight mb-2"
+            className="font-black tracking-tight mb-2 page-title"
             style={{
               fontFamily: "'Syne', sans-serif",
               fontSize: "1.75rem",
@@ -140,22 +144,19 @@ function Planner() {
           >
             My Planner
           </h1>
-          <div className="flex items-center gap-3">
-            <p className="text-zinc-500 text-xs tracking-wide">Organize. Focus. Rise every day.</p>
-            
-          </div>
+          <p className="text-zinc-500 text-xs tracking-wide">Organize. Focus. Rise every day.</p>
         </div>
 
         {/* Todos divider */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex items-center gap-1.5">
             <div className="w-px h-3" style={{ background: "rgba(249,115,22,0.6)" }} />
-            <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "#52525b" }}>Todos</span>
+            <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "var(--text-faint)" }}>Todos</span>
           </div>
-          <div className="flex-1 h-px" style={{ background: "rgba(39,39,42,0.8)" }} />
+          <div className="flex-1 h-px" style={{ background: "var(--border-default)" }} />
         </div>
 
-        {/* ── DESKTOP 3-col masonry ── */}
+        {/* DESKTOP 3-col masonry */}
         <div className="hidden xl:flex gap-3 items-start">
           {intoColumns(3).map((col, ci) => (
             <div key={ci} className="flex-1 min-w-0 flex flex-col gap-3">
@@ -165,7 +166,7 @@ function Planner() {
           ))}
         </div>
 
-        {/* ── TABLET 2-col masonry ── */}
+        {/* TABLET 2-col masonry */}
         <div className="hidden md:flex xl:hidden gap-3 items-start">
           {intoColumns(2).map((col, ci) => (
             <div key={ci} className="flex-1 min-w-0 flex flex-col gap-3">
@@ -175,10 +176,22 @@ function Planner() {
           ))}
         </div>
 
-        {/* ── MOBILE 1-col ── */}
+        {/* MOBILE 1-col */}
         <div className="flex md:hidden flex-col gap-3">
           {sections.map(section => <TodoSection key={section._id} section={section} />)}
           <AddSectionCard {...cardProps} />
+        </div>
+
+        {/* ── Google Calendar — below todos ── */}
+        <div className="mt-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-1.5">
+              <div className="w-px h-3" style={{ background: "rgba(249,115,22,0.6)" }} />
+              <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "var(--text-faint)" }}>Google Calendar</span>
+            </div>
+            <div className="flex-1 h-px" style={{ background: "var(--border-default)" }} />
+          </div>
+          <GoogleCalendarView />
         </div>
 
       </div>

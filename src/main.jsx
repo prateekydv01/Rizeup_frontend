@@ -14,6 +14,8 @@ import Planner from './pages/PlannerPage.jsx';
 import CirclePage from './pages/CirclePage.jsx';
 import AnalyticsPage from './pages/AnalyticsPage.jsx';
 import NotificationPage from './pages/NotificationPage.jsx';
+import MyHabitsPage from './pages/MyHabitsPage.jsx';
+import MyGoalsPage from './pages/MyGoalsPage.jsx';
 
 const router = createBrowserRouter([
   {
@@ -69,6 +71,22 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={true}>
             <NotificationPage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/goals',
+        element: (
+          <AuthLayout authentication={true}>
+            <MyGoalsPage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/habits',
+        element: (
+          <AuthLayout authentication={true}>
+            <MyHabitsPage />
           </AuthLayout>
         ),
       },

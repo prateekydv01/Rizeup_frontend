@@ -1,1 +1,37 @@
 @import "tailwindcss";
+@import "tailwindcss";
+
+:root {
+  /* ── Backgrounds ── */
+  --bg-base:        #080809;
+  --bg-card:        #111113;
+  --bg-card-alt:    #0f0f11;
+  --bg-input:       #0d0d0f;
+  --bg-overlay:     rgba(8, 8, 9, 0.55);
+
+  /* ── Borders ── */
+  --border-default: rgba(39, 39, 42, 0.9);
+  --border-subtle:  rgba(39, 39, 42, 0.5);
+  --border-hover:   rgba(63, 63, 70, 0.6);
+
+  /* ── Text ── */
+  --text-primary:   #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted:     #71717a;
+  --text-faint:     #52525b;
+  --text-ghost:     #3f3f46;
+
+  /* ── Misc ── */
+  --scrollbar:      #27272a;
+  --ring-track:     rgba(39, 39, 42, 0.8);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080809;
+  color: #f4f4f5;
+}

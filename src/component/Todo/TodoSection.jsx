@@ -29,12 +29,12 @@ function TodoSection({ section }) {
     <div
       className="rounded-xl flex flex-col transition-all duration-300 group/card"
       style={{
-        background: "linear-gradient(145deg, #111113 0%, #0e0e10 100%)",
+        background: "linear-gradient(145deg, var(--bg-card) 0%, var(--bg-card-alt) 100%)",
         border: "1px solid rgba(39,39,42,0.9)",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.3)",
+        boxShadow: "var(--card-shadow)",
       }}
-      onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(63,63,70,0.9)"}
-      onMouseLeave={e => e.currentTarget.style.borderColor = "rgba(39,39,42,0.9)"}
+      onMouseEnter={e => e.currentTarget.style.borderColor = "var(--border-hover)"}
+      onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-default)"}
     >
 
       {/* Top accent stripe */}
@@ -50,7 +50,7 @@ function TodoSection({ section }) {
       {totalCount > 0 && (
         <div className="px-3 pb-2 shrink-0">
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-[2px] rounded-full overflow-hidden" style={{ background: "rgba(39,39,42,0.8)" }}>
+            <div className="flex-1 h-[2px] rounded-full overflow-hidden" style={{ background: "var(--border-default)" }}>
               <div
                 className="h-full rounded-full transition-all duration-700 ease-out"
                 style={{
@@ -59,7 +59,7 @@ function TodoSection({ section }) {
                 }}
               />
             </div>
-            <span className="text-[10px] tabular-nums shrink-0 font-bold" style={{ color: progressPct === 100 ? "#22c55e" : "#52525b" }}>
+            <span className="text-[10px] tabular-nums shrink-0 font-bold" style={{ color: progressPct === 100 ? "#22c55e" : "var(--text-faint)" }}>
               {progressPct}%
             </span>
           </div>
@@ -67,19 +67,19 @@ function TodoSection({ section }) {
       )}
 
       {/* Divider */}
-      <div className="mx-3 mb-2 h-px" style={{ background: "rgba(39,39,42,0.6)" }} />
+      <div className="mx-3 mb-2 h-px" style={{ background: "var(--border-subtle)" }} />
 
       {/* Todo list */}
       <div className="px-3 flex flex-col gap-1">
         {todos.length === 0 && (
           <div className="flex items-center gap-2 py-2">
             <div className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
-              style={{ background: "rgba(39,39,42,0.5)", border: "1px solid rgba(63,63,70,0.4)" }}>
+              style={{ background: "var(--border-subtle)", border: "1px solid rgba(63,63,70,0.4)" }}>
               <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                <path d="M6 2.5v5M3.5 5.5l2.5 2 2.5-2" stroke="#52525b" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M6 2.5v5M3.5 5.5l2.5 2 2.5-2" stroke="var(--text-faint)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <p className="text-[10px] tracking-wide font-medium" style={{ color: "#3f3f46" }}>No tasks yet</p>
+            <p className="text-[10px] tracking-wide font-medium" style={{ color: "var(--text-ghost)" }}>No tasks yet</p>
           </div>
         )}
         {todos.map(todo => (
