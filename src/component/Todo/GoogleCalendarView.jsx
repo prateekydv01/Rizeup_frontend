@@ -331,13 +331,15 @@ export default function GoogleCalendarView() {
   useEffect(() => {
     fetchGoogleStatus()
       .then(r => {
-        setConnected(r.data.data.connected);
-        if (r.data.data.connected) loadEvents(new Date());
+        const isConnected = r.data.data.connected;
+        setConnected(isConnected);
+        if (isConnected) loadEvents(new Date());
       })
-      .catch(console.log)
+      .catch(() => setConnected(false))
       .finally(() => setLoading(false));
     if (window.location.search.includes("googleConnected=true")) {
       setConnected(true);
+      loadEvents(new Date());
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -349,7 +351,13 @@ export default function GoogleCalendarView() {
       const end   = new Date(date.getFullYear(), date.getMonth() + 2, 0);
       const r     = await fetchCalendarEvents(start.toISOString(), end.toISOString());
       setEvents(r.data.data);
-    } catch (e) { console.log(e); }
+    } catch (e) {
+      // If calendar not connected or token invalid, reset to disconnected state
+      if (e.response?.status === 500 || e.response?.status === 400) {
+        setConnected(false);
+        setEvents([]);
+      }
+    }
     finally { setEvLoading(false); }
   }, []);
 
