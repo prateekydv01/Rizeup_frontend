@@ -9,13 +9,13 @@ import DailyProgress from "../component/Home/DailyProgress.jsx";
 import StreakCard     from "../component/Home/StreakCard.jsx";
 import StatsCard     from "../component/Home/StatsCard.jsx";
 import TodayTodos    from "../component/Home/TodayTodos.jsx";
+import TodayHabits   from "../component/Home/TodayHabits.jsx";
 import CircleGoals   from "../component/Home/CircleGoals.jsx";
 
 export default function HomePage() {
   const userData  = useSelector(state => state.auth.userData);
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
-  const [checkedIn, setCheckedIn] = useState(false);
   const [todaySectionId, setTodaySectionId] = useState(null);
 
   const handleLogout = async () => {
@@ -24,14 +24,22 @@ export default function HomePage() {
     navigate("/login");
   };
 
-  // ── Not logged in ──
   if (!userData) return <LandingPage />;
 
-  // ── Dashboard ──
   const firstName = (userData.fullName || userData.name || "User").split(" ")[0];
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
   });
+
+  const Divider = ({ label }) => (
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5">
+        <div className="w-px h-3" style={{ background: "rgba(249,115,22,0.6)" }} />
+        <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "var(--text-faint)" }}>{label}</span>
+      </div>
+      <div className="flex-1 h-px" style={{ background: "var(--border-default)" }} />
+    </div>
+  );
 
   return (
     <>
@@ -45,23 +53,21 @@ export default function HomePage() {
       <div className="min-h-screen text-white pt-14 md:pt-0"
         style={{ background: "var(--bg-base)", fontFamily: "'DM Sans', sans-serif" }}>
 
-        {/* Glow orb */}
         <div className="fixed top-0 left-[30%] w-[400px] h-[300px] rounded-full pointer-events-none z-0"
           style={{ background: "radial-gradient(circle, rgba(249,115,22,0.04) 0%, transparent 70%)" }} />
 
         <div className="relative z-10 px-5 sm:px-10 md:px-14 lg:px-20 pt-8 pb-16 flex flex-col gap-8">
 
-          {/* ── Header ── */}
+          {/* Header */}
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-1 h-1 rounded-full" style={{ background: "#f97316" }} />
                 <span className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: "#f97316" }}>Rize Up</span>
               </div>
-              <h1 className="font-black tracking-tight page-title"
+              <h1 className="font-black tracking-tight"
                 style={{
-                  fontFamily: "'Syne', sans-serif",
-                  fontSize: "1.75rem",
+                  fontFamily: "'Syne', sans-serif", fontSize: "1.75rem",
                   background: "linear-gradient(110deg,#ffffff 0%,#fb923c 45%,#ef4444 100%)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                 }}>
@@ -79,35 +85,23 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* ── Stat cards row ── */}
+          {/* Stat cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <DailyProgress todaySectionId={todaySectionId} checkedIn={checkedIn} onCheckIn={() => setCheckedIn(true)} />
+            <DailyProgress todaySectionId={todaySectionId} />
             <StreakCard />
             <StatsCard />
           </div>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-px h-3" style={{ background: "rgba(249,115,22,0.6)" }} />
-              <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "var(--text-faint)" }}>Today</span>
-            </div>
-            <div className="flex-1 h-px" style={{ background: "var(--border-default)" }} />
-          </div>
-
-          {/* ── Today's todos (from planner "Today" section) ── */}
+          {/* Today section */}
+          <Divider label="Today" />
           <TodayTodos onSectionResolved={setTodaySectionId} />
 
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-px h-3" style={{ background: "rgba(249,115,22,0.6)" }} />
-              <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: "var(--text-faint)" }}>Circles</span>
-            </div>
-            <div className="flex-1 h-px" style={{ background: "var(--border-default)" }} />
-          </div>
+          {/* Habits section */}
+          <Divider label="Habits" />
+          <TodayHabits />
 
-          {/* ── Circle cards (real data) ── */}
+          {/* Circles section */}
+          <Divider label="Circles" />
           <CircleGoals />
 
         </div>

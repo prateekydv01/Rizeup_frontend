@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getUserCircles } from "../../api/circle";
+import { getMyHabits } from "../../api/habit";
 
 const FlameIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -20,17 +21,22 @@ const UsersIcon = () => (
 
 export default function StatsCard() {
   const [circles, setCircles] = useState("—");
+  const [habits,  setHabits]  = useState("—");
 
   useEffect(() => {
     getUserCircles()
       .then(r => setCircles(r.data.data.length))
       .catch(() => setCircles(0));
+
+    getMyHabits()
+      .then(r => setHabits(r.data.data.filter(h => h.isActive).length))
+      .catch(() => setHabits(0));
   }, []);
 
   const rows = [
-    { icon: <FlameIcon />, label: "Habits ongoing", value: "—" },   // extend when habits API ready
-    { icon: <TargetIcon />, label: "Goals active",  value: "—" },   // extend when goals API ready
-    { icon: <UsersIcon />, label: "Circles joined", value: circles },
+    { icon: <FlameIcon />,  label: "Habits ongoing",  value: habits  },
+    { icon: <TargetIcon />, label: "Goals active",     value: "—"     },
+    { icon: <UsersIcon />,  label: "Circles joined",   value: circles },
   ];
 
   return (
