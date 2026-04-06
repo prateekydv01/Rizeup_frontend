@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { deleteGoal } from "../../api/goal.js";
-import GoalDetailModal from "./GoalDetailModal.jsx";
+import GoalDetailModal from "./Goaldetailmodal.jsx";
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
