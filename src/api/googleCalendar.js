@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE = "https://rizeup-frontend.vercel.app/api/v1/google";
+const BASE = "https://rizeupbackend.onrender.com/api/v1/google/auth-url";
 
 export const fetchGoogleStatus    = () => axios.get(`${BASE}/status`);
 export const fetchGoogleAuthUrl   = () => axios.get(`${BASE}/auth-url`);
