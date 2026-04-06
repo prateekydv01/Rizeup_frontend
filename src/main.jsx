@@ -16,6 +16,7 @@ import AnalyticsPage from './pages/AnalyticsPage.jsx';
 import NotificationPage from './pages/NotificationPage.jsx';
 import MyHabitsPage from './pages/MyHabitsPage.jsx';
 import MyGoalsPage from './pages/MyGoalsPage.jsx';
+import CircleRoom from './component/CircleRoom/CircleRoom.jsx';
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={true}>
             <CirclePage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/circles/:circleId',
+        element: (
+          <AuthLayout authentication={true}>
+            <CircleRoom />
           </AuthLayout>
         ),
       },
