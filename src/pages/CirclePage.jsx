@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserCircles, leaveCircle, deleteCircle } from "../api/circle";
 import { getCurrentUser } from "../api/auth";
+import CreateCircle from "../component/Circle/CreateCircle";
+import JoinCircle from "../component/Circle/JoinCircle";
 
 function NoiseGrid({ active, hue }) {
   const canvasRef = useRef(null);
@@ -10,6 +12,7 @@ function NoiseGrid({ active, hue }) {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     const W = (canvas.width = canvas.offsetWidth);
     const H = (canvas.height = canvas.offsetHeight);
@@ -52,7 +55,7 @@ function NoiseGrid({ active, hue }) {
     return () => { cancelAnimationFrame(raf.current); canvas.removeEventListener("mousemove", onMove); };
   }, [active, hue]);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full rounded-xl" />;
+  return <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", borderRadius: 16 }} />;
 }
 
 function CircleCard({ circle, userId, onLeave, onDelete, onOpen }) {
@@ -65,41 +68,49 @@ function CircleCard({ circle, userId, onLeave, onDelete, onOpen }) {
   return (
     <div
       onClick={onOpen}
-      className="relative flex flex-col gap-3 p-4 rounded-xl overflow-hidden transition-all duration-300 cursor-pointer"
       style={{
-        background: "var(--bg-card-alt)",
-        border: `1px solid ${hovered ? `hsla(${hue},50%,50%,0.3)` : "var(--border-default)"}`,
-        boxShadow: hovered ? `0 4px 24px hsla(${hue},60%,40%,0.08)` : "none",
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        padding: 16,
+        borderRadius: 16,
+        overflow: "hidden",
+        cursor: "pointer",
+        background: "#111113",
+        border: `1px solid ${hovered ? `hsla(${hue},50%,50%,0.35)` : "rgba(39,39,42,0.7)"}`,
+        boxShadow: hovered ? `0 8px 28px hsla(${hue},60%,40%,0.1)` : "none",
+        transition: "all 0.25s cubic-bezier(0.22,1,0.36,1)",
+        transform: hovered ? "translateY(-2px)" : "translateY(0)",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <NoiseGrid active={hovered} hue={hue} />
-      <div className="absolute inset-0 rounded-xl" style={{ background: "var(--bg-overlay)" }} />
+      <div style={{ position: "absolute", inset: 0, borderRadius: 16, background: "rgba(8,8,9,0.55)" }} />
 
-      <div className="relative z-10 flex flex-col gap-2.5">
+      <div style={{ position: "relative", zIndex: 10, display: "flex", flexDirection: "column", gap: 10 }}>
         {/* Avatar + info */}
-        <div className="flex items-center gap-2.5">
-          <div
-            className="w-11 h-11 rounded-lg flex items-center justify-center font-black text-sm shrink-0"
-            style={{
-              fontFamily: "'Syne', sans-serif",
-              background: `linear-gradient(135deg, hsla(${hue},60%,45%,${hovered ? 0.3 : 0.15}), hsla(${hue},60%,35%,0.1))`,
-              border: `1px solid hsla(${hue},60%,50%,${hovered ? 0.4 : 0.2})`,
-              color: `hsl(${hue},70%,${hovered ? 70 : 60}%)`,
-            }}
-          >
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "'Syne', sans-serif", fontWeight: 900, fontSize: 14,
+            background: `linear-gradient(135deg, hsla(${hue},60%,45%,${hovered ? 0.3 : 0.18}), hsla(${hue},60%,35%,0.1))`,
+            border: `1px solid hsla(${hue},60%,50%,${hovered ? 0.45 : 0.22})`,
+            color: `hsl(${hue},70%,${hovered ? 72 : 62}%)`,
+            transition: "all 0.25s",
+          }}>
             {initials}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-bold truncate" style={{ fontFamily: "'Syne', sans-serif", color: "var(--text-primary)" }}>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p style={{ fontFamily: "'Syne', sans-serif", fontWeight: 900, fontSize: 14, color: "#f4f4f5", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {circle.name}
             </p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] font-mono tracking-[0.18em]" style={{ color: "var(--text-faint)" }}>{circle.code}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{ fontSize: 10, fontFamily: "monospace", letterSpacing: "0.18em", color: "#3f3f46" }}>{circle.code}</span>
               {isAdmin && (
-                <span className="text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 rounded-full"
-                  style={{ background: "rgba(249,115,22,0.1)", color: "#f97316", border: "1px solid rgba(249,115,22,0.2)" }}>
+                <span style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", padding: "1px 6px", borderRadius: 20, background: "rgba(249,115,22,0.1)", color: "#f97316", border: "1px solid rgba(249,115,22,0.2)" }}>
                   Admin
                 </span>
               )}
@@ -109,40 +120,40 @@ function CircleCard({ circle, userId, onLeave, onDelete, onOpen }) {
 
         {/* Member pips */}
         {memberCount > 0 && (
-          <div className="flex items-center gap-1 flex-wrap">
-            {Array.from({ length: Math.min(memberCount, 8) }).map((_, i) => (
-              <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold"
-                style={{
-                  background: `hsla(${(hue + i * 35) % 360},50%,40%,0.25)`,
-                  border: `1px solid hsla(${(hue + i * 35) % 360},50%,50%,0.2)`,
-                  color: `hsl(${(hue + i * 35) % 360},60%,65%)`,
-                }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+            {Array.from({ length: Math.min(memberCount, 7) }).map((_, i) => (
+              <div key={i} style={{
+                width: 24, height: 24, borderRadius: "50%",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 9, fontWeight: 700,
+                background: `hsla(${(hue + i * 40) % 360},50%,40%,0.25)`,
+                border: `1px solid hsla(${(hue + i * 40) % 360},50%,50%,0.2)`,
+                color: `hsl(${(hue + i * 40) % 360},60%,65%)`,
+              }}>
                 {String.fromCharCode(65 + i)}
               </div>
             ))}
-            {memberCount > 8 && <span className="text-[9px]" style={{ color: "var(--text-ghost)" }}>+{memberCount - 8}</span>}
+            {memberCount > 7 && <span style={{ fontSize: 9, color: "#3f3f46" }}>+{memberCount - 7}</span>}
           </div>
         )}
 
         {/* Divider */}
-        <div className="h-px" style={{ background: `hsla(${hue},30%,30%,${hovered ? 0.35 : 0.15})` }} />
+        <div style={{ height: 1, background: `hsla(${hue},30%,30%,${hovered ? 0.35 : 0.15})` }} />
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div style={{ display: "flex", gap: 8 }} onClick={e => e.stopPropagation()}>
           <button
-            onClick={() => onLeave(circle._id)}
-            className="flex-1 py-2 rounded-lg text-[9px] font-bold tracking-widest uppercase transition-all duration-150 active:scale-95"
-            style={{ background: "var(--bg-input)", border: "1px solid rgba(63,63,70,0.5)", color: "var(--text-muted)" }}
-            onMouseEnter={e => { e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.borderColor = "rgba(113,113,122,0.6)"; }}
-            onMouseLeave={e => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.borderColor = "var(--border-hover)"; }}
+            onClick={(e) => { e.stopPropagation(); onLeave(circle._id); }}
+            style={{ flex: 1, padding: "8px 0", borderRadius: 10, fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s", background: "rgba(24,24,27,0.8)", border: "1px solid rgba(63,63,70,0.5)", color: "#71717a" }}
+            onMouseEnter={e => { e.currentTarget.style.color = "#f4f4f5"; e.currentTarget.style.borderColor = "rgba(113,113,122,0.6)"; }}
+            onMouseLeave={e => { e.currentTarget.style.color = "#71717a"; e.currentTarget.style.borderColor = "rgba(63,63,70,0.5)"; }}
           >
             Leave
           </button>
           {isAdmin && (
             <button
-              onClick={() => onDelete(circle._id)}
-              className="flex-1 py-2 rounded-lg text-[9px] font-bold tracking-widest uppercase transition-all duration-150 active:scale-95"
-              style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)", color: "#dc2626" }}
+              onClick={(e) => { e.stopPropagation(); onDelete(circle._id); }}
+              style={{ flex: 1, padding: "8px 0", borderRadius: 10, fontSize: 9, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", cursor: "pointer", transition: "all 0.15s", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)", color: "#dc2626" }}
               onMouseEnter={e => { e.currentTarget.style.background = "rgba(239,68,68,0.14)"; e.currentTarget.style.color = "#f87171"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "rgba(239,68,68,0.06)"; e.currentTarget.style.color = "#dc2626"; }}
             >
@@ -155,46 +166,118 @@ function CircleCard({ circle, userId, onLeave, onDelete, onOpen }) {
   );
 }
 
-function MyCircles() {
+function MyCirclesList({ userId }) {
   const navigate = useNavigate();
   const [circles, setCircles] = useState([]);
-  const [userId, setUserId] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchCircles = async () => {
     try { const res = await getUserCircles(); setCircles(res.data.data); }
     catch (e) { console.log(e); }
+    finally { setLoading(false); }
   };
 
-  const fetchUser = async () => {
-    try { const res = await getCurrentUser(); setUserId(res.data.data._id); }
-    catch (e) { console.log(e); }
-  };
-
-  useEffect(() => { fetchCircles(); fetchUser(); }, []);
+  useEffect(() => { fetchCircles(); }, []);
 
   const handleLeave = async (id) => { await leaveCircle(id).catch(console.log); fetchCircles(); };
   const handleDelete = async (id) => { await deleteCircle(id).catch(console.log); fetchCircles(); };
 
-  if (circles.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3">
-        <div className="relative w-12 h-12">
-          <div className="absolute inset-0 rounded-full" style={{ border: "1px dashed rgba(63,63,70,0.4)" }} />
-          <div className="absolute inset-3 rounded-full" style={{ border: "1px dashed rgba(63,63,70,0.25)" }} />
-        </div>
-        <p className="text-xs font-bold tracking-widest uppercase" style={{ fontFamily: "'Syne', sans-serif", color: "var(--text-ghost)" }}>No circles yet</p>
-        <p className="text-[10px]" style={{ color: "var(--text-ghost)" }}>Create one or join with a code</p>
+  if (loading) return (
+    <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+      <div style={{ width: 20, height: 20, border: "2px solid rgba(249,115,22,0.2)", borderTopColor: "#f97316", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+    </div>
+  );
+
+  if (circles.length === 0) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "48px 0", gap: 12 }}>
+      <div style={{ position: "relative", width: 48, height: 48 }}>
+        <div style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "1px dashed rgba(63,63,70,0.4)" }} />
+        <div style={{ position: "absolute", inset: 12, borderRadius: "50%", border: "1px dashed rgba(63,63,70,0.25)" }} />
       </div>
-    );
-  }
+      <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 12, letterSpacing: "0.2em", textTransform: "uppercase", color: "#3f3f46", margin: 0 }}>No circles yet</p>
+      <p style={{ fontSize: 11, color: "#27272a", margin: 0 }}>Create one or join with a code above</p>
+    </div>
+  );
 
   return (
-    <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div style={{
+      display: "grid",
+      gap: 12,
+      gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    }}>
       {circles.map(circle => (
-        <CircleCard key={circle._id} circle={circle} userId={userId} onLeave={handleLeave} onDelete={handleDelete} onOpen={() => navigate(`/circles/${circle._id}`)} />
+        <CircleCard
+          key={circle._id}
+          circle={circle}
+          userId={userId}
+          onLeave={handleLeave}
+          onDelete={handleDelete}
+          onOpen={() => navigate(`/circles/${circle._id}`)}
+        />
       ))}
     </div>
   );
 }
 
-export default MyCircles;
+export default function CirclePage() {
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    getCurrentUser()
+      .then(res => setUserId(res.data.data._id))
+      .catch(console.log);
+  }, []);
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#080809", fontFamily: "'DM Sans', sans-serif", paddingBottom: 60 }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap');
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .circle-fade { animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(39,39,42,0.8); border-radius: 4px; }
+      `}</style>
+
+      {/* Page header */}
+      <div style={{
+        padding: "32px 28px 24px",
+        borderBottom: "1px solid rgba(39,39,42,0.5)",
+        background: "linear-gradient(180deg, rgba(249,115,22,0.03) 0%, transparent 100%)",
+      }} className="circle-fade">
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          {/* Mobile: stack, desktop: row */}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 8, marginBottom: 28 }}>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.3em", textTransform: "uppercase", color: "#f97316", margin: "0 0 6px" }}>Community</p>
+              <h1 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 900, fontSize: "clamp(1.5rem, 4vw, 2rem)", color: "#f4f4f5", margin: 0, letterSpacing: "-0.02em" }}>
+                My Circles
+              </h1>
+            </div>
+            <p style={{ fontSize: 12, color: "#3f3f46", margin: 0 }}>Grow together, accountable together.</p>
+          </div>
+
+          {/* Create + Join row — responsive 2-col on md, stack on mobile */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: 12,
+          }}>
+            <CreateCircle />
+            <JoinCircle />
+          </div>
+        </div>
+      </div>
+
+      {/* Circles grid */}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 28px 0" }} className="circle-fade">
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+          <div style={{ width: 2, height: 14, borderRadius: 2, background: "linear-gradient(180deg,#f97316,#dc2626)" }} />
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.28em", textTransform: "uppercase", color: "#52525b", margin: 0 }}>Your Circles</p>
+        </div>
+        <MyCirclesList userId={userId} />
+      </div>
+    </div>
+  );
+}
