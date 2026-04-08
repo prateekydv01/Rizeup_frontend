@@ -17,6 +17,7 @@ import NotificationPage from './pages/NotificationPage.jsx';
 import MyHabitsPage from './pages/MyHabitsPage.jsx';
 import MyGoalsPage from './pages/MyGoalsPage.jsx';
 import CircleRoom from './component/CircleRoom/CircleRoom.jsx';
+import AuthSuccess from "./pages/AuthSuccess.jsx";
 
 const router = createBrowserRouter([
   {
@@ -96,6 +97,14 @@ const router = createBrowserRouter([
         element: (
           <AuthLayout authentication={true}>
             <MyHabitsPage />
+          </AuthLayout>
+        ),
+      },
+      {
+        path: '/auth-success',
+        element: (
+          <AuthLayout authentication={true}>
+            <AuthSuccess />
           </AuthLayout>
         ),
       },
