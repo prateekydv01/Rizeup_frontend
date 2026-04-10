@@ -100,14 +100,14 @@ const router = createBrowserRouter([
           </AuthLayout>
         ),
       },
-      {
-        path: '/auth-success',
-        element: (
-          <AuthLayout authentication={true}>
-            <AuthSuccess />
-          </AuthLayout>
-        ),
-      },
+      // {
+      //   path: '/auth-success',
+      //   element: (
+      //     <AuthLayout authentication={true}>
+      //       <AuthSuccess />
+      //     </AuthLayout>
+      //   ),
+      // },
     ]
   }
 ])
