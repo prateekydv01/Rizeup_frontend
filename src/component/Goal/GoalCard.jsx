@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { deleteGoal } from "../../api/goal.js";
 import GoalDetailModal from "./Goaldetailmodal.jsx";
+import { useSelector } from "react-redux";
 
 const fmt = (d) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
 
@@ -31,6 +32,13 @@ export default function GoalCard({ goal: initialGoal, onDelete, onUpdate, index 
     try { await deleteGoal(goal._id); onDelete(goal._id); }
     catch { setDeleting(false); }
   };
+
+  const getId = (u) => u?._id?.toString() || u?.toString();
+  const currentUserId = useSelector( state => state.auth.userData?._id)?.toString();
+  const isCreator = getId(goal.createdBy) === currentUserId;
+  const isAdmin = getId(goal.circleId?.admin) === currentUserId;
+
+  const canDelete = isCreator || isAdmin;
 
   return (
     <>
@@ -78,12 +86,12 @@ export default function GoalCard({ goal: initialGoal, onDelete, onUpdate, index 
               </div>
             </div>
 
-            <button onClick={handleDelete} disabled={deleting}
+           {canDelete && (<button onClick={handleDelete} disabled={deleting}
               style={{ flexShrink: 0, background: "transparent", border: "1px solid transparent", color: "#3f3f46", cursor: "pointer", padding: "5px 7px", borderRadius: 8, opacity: deleting ? 0.4 : 1, transition: "all 0.15s", fontSize: 13 }}
               onMouseEnter={e => { e.currentTarget.style.color = "#f87171"; e.currentTarget.style.background = "rgba(239,68,68,0.08)"; e.currentTarget.style.borderColor = "rgba(239,68,68,0.18)"; }}
               onMouseLeave={e => { e.currentTarget.style.color = "#3f3f46"; e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "transparent"; }}>
               🗑
-            </button>
+            </button>)}
           </div>
 
           {/* Progress bar */}
