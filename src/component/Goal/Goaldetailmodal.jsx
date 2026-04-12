@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getGoalById, markGoalComplete, verifyProof, getGoalLeaderboard, updateGoal, addDailyLog, getGoalLogs } from "../../api/goal.js";
+import { useSelector } from "react-redux";
 
 const fmt     = (d) => d ? new Date(d).toLocaleDateString("en-US",  { month:"short", day:"numeric", year:"numeric" }) : "—";
 const fmtFull = (d) => d ? new Date(d).toLocaleString("en-US",      { month:"short", day:"numeric", year:"numeric", hour:"numeric", minute:"2-digit" }) : "—";
@@ -476,7 +477,9 @@ export default function GoalDetailModal({ goal: initialGoal, onClose, onUpdate }
   const [activeTab, setActiveTab] = useState("overview");
   const [loading,   setLoading]   = useState(true);
 
-  const currentUserId = goal.createdBy?._id || goal.createdBy;
+  const currentUserId = useSelector(
+    state => state.auth.userData?._id
+  )?.toString();
 
   useEffect(() => {
     getGoalById(goal._id)
@@ -494,6 +497,7 @@ export default function GoalDetailModal({ goal: initialGoal, onClose, onUpdate }
     const reqId = (r.userId?._id || r.userId)?.toString();
     return reqId !== currentUserId?.toString() && r.status === "pending";
   }).length;
+
 
   const isOwner  = goal.isOwner  || (goal.createdBy?._id || goal.createdBy)?.toString() === currentUserId?.toString();
   const isMember = goal.isJoined || isOwner;
@@ -550,6 +554,7 @@ export default function GoalDetailModal({ goal: initialGoal, onClose, onUpdate }
               <div style={{ width:20, height:20, border:"2px solid rgba(249,115,22,0.2)", borderTopColor:"#f97316", borderRadius:"50%", animation:"spin 0.8s linear infinite" }} />
             </div>
           ) : (
+          
             <>
               {activeTab==="overview"      && <OverviewTab      goal={goal} currentUserId={currentUserId} onGoalUpdate={handleGoalUpdate} />}
               {activeTab==="resources"     && <ResourcesTab     goal={goal} onGoalUpdate={handleGoalUpdate} />}
