@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&family=Geist:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* ── Backgrounds ── */
@@ -24,6 +24,10 @@
   /* ── Misc ── */
   --scrollbar:      #27272a;
   --ring-track:     rgba(39, 39, 42, 0.8);
+
+  /* ── Fonts ── */
+  --font-display: 'Bricolage Grotesque', sans-serif;
+  --font-body:    'Geist', sans-serif;
 }
 
 * {
@@ -34,4 +38,27 @@ body {
   margin: 0;
   background: #080809;
   color: #f4f4f5;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Replace Syne everywhere with Bricolage Grotesque */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* Any inline style using 'Syne' gets overridden via CSS custom property cascade */
+[style*="Syne"] {
+  font-family: var(--font-display) !important;
+}
+
+/* Any inline style using 'DM Sans' or 'DM Mono' gets overridden */
+[style*="DM Sans"],
+[style*="DM Mono"] {
+  font-family: var(--font-body) !important;
+}
+
+input, textarea, select, button {
+  font-family: var(--font-body);
 }
