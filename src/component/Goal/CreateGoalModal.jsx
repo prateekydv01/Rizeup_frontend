@@ -11,34 +11,23 @@ const Lbl = ({ children }) => (
 );
 
 function DatePicker({ label, value, onChange, required }) {
-  const [open, setOpen] = useState(false);
-
-  const fmt = (d) => d ? new Date(d+"T00:00:00").toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" }) : null;
-
   return (
-    <div style={{ position:"relative" }}>
+    <div>
       <Lbl>{label}</Lbl>
-      <button type="button" onClick={() => setOpen(v => !v)}
-        style={{ ...IS, display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", textAlign:"left", gap:8, color:value?"#f4f4f5":"#52525b" }}>
-        <span style={{ flex:1 }}>{fmt(value) || `Pick ${label.toLowerCase()}`}</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
-      </button>
 
-      {open && (
-        <div style={{ position:"absolute", top:"calc(100% + 6px)", left:0, zIndex:100, background:"#111113", border:"1px solid rgba(39,39,42,0.9)", borderRadius:12, padding:4, boxShadow:"0 16px 40px rgba(0,0,0,0.6)", minWidth:"100%" }}>
-          <input type="date" value={value} required={required}
-            onChange={e => { onChange(e.target.value); setOpen(false); }}
-            style={{ ...IS, borderRadius:8, colorScheme:"dark" }}
-            onFocus={fo} onBlur={bl}
-            autoFocus />
-          <button type="button" onClick={() => setOpen(false)}
-            style={{ width:"100%", padding:"6px", marginTop:4, borderRadius:8, border:"none", background:"transparent", color:"#52525b", fontSize:11, cursor:"pointer" }}>
-            Cancel
-          </button>
-        </div>
-      )}
+      <input
+        type="date"
+        value={value}
+        required={required}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          ...IS,
+          colorScheme: "dark",
+          cursor: "pointer"
+        }}
+        onFocus={fo}
+        onBlur={bl}
+      />
     </div>
   );
 }

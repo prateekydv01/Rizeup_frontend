@@ -27,6 +27,31 @@ function OverviewTab({ goal, currentUserId, onGoalUpdate }) {
   const [editTitle,  setEditTitle]  = useState(goal.title);
   const [editEnd,    setEditEnd]    = useState(goal.endDate?.slice(0, 10) || "");
   const [saving,     setSaving]     = useState(false);
+  const [resEditing, setResEditing] = useState(false);
+const [resources, setResources] = useState(goal.resources || []);
+const [resSaving, setResSaving] = useState(false);
+const [resError, setResError] = useState("");
+const addRes = () => setResources(p => [...p, { name:"", url:"" }]);
+
+const updateRes = (i, f, v) =>
+  setResources(p => p.map((r, idx) => idx === i ? { ...r, [f]: v } : r));
+
+const removeRes = (i) =>
+  setResources(p => p.filter((_, idx) => idx !== i));
+
+const handleSaveResources = async () => {
+  const valid = resources.filter(r => r.name.trim() && r.url.trim());
+  setResSaving(true); setResError("");
+  try {
+    const res = await updateGoal(goal._id, { resources: valid });
+    onGoalUpdate({ ...goal, resources: valid, ...res.data.data });
+    setResEditing(false);
+  } catch (err) {
+    setResError(err.response?.data?.message || "Failed to save resources");
+  } finally {
+    setResSaving(false);
+  }
+};
 
   const daysLeft = Math.ceil((new Date(goal.endDate) - new Date()) / 86400000);
   const totalMs  = new Date(goal.endDate) - new Date(goal.startDate);
@@ -103,24 +128,253 @@ function OverviewTab({ goal, currentUserId, onGoalUpdate }) {
           </div>
         )}
       </div>
+        {/* ─── Resources (Moved from ResourcesTab) ─── */}
+{/* ─── Resources (Synced with Overview UI) ─── */}
+<div style={{ padding:16, borderRadius:12, background:"rgba(15,15,17,0.8)", border:"1px solid rgba(39,39,42,0.7)" }}>
+  
+  {/* Header */}
+  <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+    <p style={{ fontSize:11, fontWeight:700, letterSpacing:"0.08em", textTransform:"uppercase", color:"#a1a1aa", margin:0 }}>
+      Resources
+    </p>
 
-      {/* Completions */}
-      {goal.completedBy?.length > 0 && (
-        <div style={{ padding:"14px 16px", borderRadius:12, background:"rgba(34,197,94,0.05)", border:"1px solid rgba(34,197,94,0.15)" }}>
-          <p style={{ fontSize:11, fontWeight:700, color:"#22c55e", marginBottom:10, letterSpacing:"0.08em", textTransform:"uppercase" }}>✓ Completed by</p>
-          <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
-            {goal.completedBy.map((c, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                  <span style={{ fontSize:12, fontWeight:700, color:"#f97316" }}>#{i+1}</span>
-                  <span style={{ fontSize:12, color:"#d4d4d8" }}>{c.userId?.fullName || c.userId?.username || "User"}</span>
-                </div>
-                <span style={{ fontSize:10, color:"#52525b" }}>{fmtFull(c.completedAt)}</span>
-              </div>
-            ))}
-          </div>
+    {(
+      resEditing ? (
+        <div style={{ display:"flex", gap:8 }}>
+          <button
+            onClick={() => { setResEditing(false); setResources(goal.resources || []); }}
+            style={{
+              padding:"6px 10px",
+              borderRadius:8,
+              border:"1px solid rgba(63,63,70,0.6)",
+              background:"transparent",
+              color:"#71717a",
+              fontSize:11,
+              fontWeight:600,
+              cursor:"pointer"
+            }}
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={handleSaveResources}
+            disabled={resSaving}
+            style={{
+              padding:"6px 10px",
+              borderRadius:8,
+              border:"none",
+              background:"linear-gradient(135deg,#f97316,#dc2626)",
+              color:"white",
+              fontSize:11,
+              fontWeight:600,
+              cursor:"pointer",
+              opacity:resSaving ? 0.5 : 1
+            }}
+          >
+            {resSaving ? "Saving…" : "Save"}
+          </button>
         </div>
+      ) : (
+        <button
+          onClick={() => setResEditing(true)}
+          style={{
+            fontSize:10,
+            fontWeight:700,
+            color:"#52525b",
+            background:"rgba(39,39,42,0.5)",
+            border:"1px solid rgba(63,63,70,0.4)",
+            padding:"3px 10px",
+            borderRadius:6,
+            cursor:"pointer",
+            letterSpacing:"0.08em",
+            transition:"all 0.15s"
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.color = "#f97316";
+            e.currentTarget.style.borderColor = "rgba(249,115,22,0.3)";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.color = "#52525b";
+            e.currentTarget.style.borderColor = "rgba(63,63,70,0.4)";
+          }}
+        >
+          ✏ Edit
+        </button>
+      )
+    )}
+  </div>
+
+  {/* Error */}
+  {resError && (
+    <div style={{ padding:"10px 14px", borderRadius:10, background:"rgba(220,38,38,0.07)", border:"1px solid rgba(220,38,38,0.2)", color:"#f87171", fontSize:12 }}>
+      {resError}
+    </div>
+  )}
+
+  {/* EDIT MODE */}
+  {resEditing ? (
+    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+      {resources.map((r, i) => (
+        <div key={i} style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+          
+          <input
+            value={r.name}
+            onChange={e => updateRes(i, "name", e.target.value)}
+            placeholder="Name"
+            style={{ ...IS, flex:"1 1 120px", fontSize:12, padding:"8px 11px" }}
+            onFocus={fo}
+            onBlur={bl}
+          />
+
+          <input
+            value={r.url}
+            onChange={e => updateRes(i, "url", e.target.value)}
+            placeholder="URL"
+            style={{ ...IS, flex:"2 1 180px", fontSize:12, padding:"8px 11px" }}
+            onFocus={fo}
+            onBlur={bl}
+          />
+
+          <button
+            onClick={() => removeRes(i)}
+            style={{
+              background:"rgba(239,68,68,0.07)",
+              border:"1px solid rgba(239,68,68,0.15)",
+              color:"#f87171",
+              width:30,
+              height:30,
+              borderRadius:8,
+              cursor:"pointer",
+              fontSize:14,
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"center"
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+
+      <button
+        onClick={addRes}
+        style={{
+          display:"flex",
+          alignItems:"center",
+          gap:5,
+          padding:"7px 12px",
+          borderRadius:8,
+          background:"transparent",
+          border:"1px dashed rgba(249,115,22,0.3)",
+          color:"#f97316",
+          fontSize:12,
+          fontWeight:600,
+          cursor:"pointer",
+          width:"fit-content",
+          transition:"all 0.15s"
+        }}
+        onMouseEnter={e => e.currentTarget.style.background="rgba(249,115,22,0.06)"}
+        onMouseLeave={e => e.currentTarget.style.background="transparent"}
+      >
+        + Add Resource
+      </button>
+    </div>
+  ) : (
+    
+    /* VIEW MODE */
+    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+      {(goal.resources || []).length === 0 && (
+        <p style={{ fontSize:12, color:"#3f3f46", textAlign:"center", padding:"24px 0" }}>
+          No resources attached.
+        </p>
       )}
+
+      {(goal.resources || []).map((r, i) => (
+        <a
+          key={i}
+          href={r.url}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            display:"flex",
+            alignItems:"center",
+            gap:12,
+            padding:"12px 16px",
+            borderRadius:10,
+            background:"rgba(15,15,17,0.8)",
+            border:"1px solid rgba(39,39,42,0.7)",
+            textDecoration:"none",
+            transition:"all 0.15s"
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = "rgba(249,115,22,0.4)";
+            e.currentTarget.style.background = "rgba(249,115,22,0.04)";
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = "rgba(39,39,42,0.7)";
+            e.currentTarget.style.background = "rgba(15,15,17,0.8)";
+          }}
+        >
+          <div style={{
+            width:36,
+            height:36,
+            borderRadius:8,
+            background:"rgba(249,115,22,0.1)",
+            border:"1px solid rgba(249,115,22,0.18)",
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+            fontSize:16
+          }}>
+            🔗
+          </div>
+
+          <div style={{ flex:1, minWidth:0 }}>
+            <p style={{ fontSize:13, fontWeight:600, color:"#f4f4f5", margin:0 }}>
+              {r.name}
+            </p>
+            <p style={{
+              fontSize:11,
+              color:"#52525b",
+              margin:"2px 0 0",
+              overflow:"hidden",
+              textOverflow:"ellipsis",
+              whiteSpace:"nowrap"
+            }}>
+              {r.url}
+            </p>
+          </div>
+
+          <span style={{ color:"#52525b" }}>↗</span>
+        </a>
+      ))}
+    </div>
+  )}
+</div>
+      {/* Completions */}
+      {isCompleted && (
+  <div style={{
+    marginTop:10,
+    padding:"10px 12px",
+    borderRadius:10,
+    background:"rgba(34,197,94,0.07)",
+    border:"1px solid rgba(34,197,94,0.2)",
+    display:"flex",
+    alignItems:"center",
+    gap:8
+  }}>
+    <span style={{ fontSize:14 }}>✅</span>
+    <p style={{
+      fontSize:12,
+      fontWeight:700,
+      color:"#22c55e",
+      margin:0
+    }}>
+      You completed this goal
+    </p>
+  </div>
+)}
 
       {error   && <div style={{ padding:"10px 14px", borderRadius:10, background:"rgba(220,38,38,0.07)", border:"1px solid rgba(220,38,38,0.2)", color:"#f87171", fontSize:12 }}>{error}</div>}
       {success && <div style={{ padding:"10px 14px", borderRadius:10, background:"rgba(34,197,94,0.07)", border:"1px solid rgba(34,197,94,0.2)", color:"#22c55e", fontSize:12 }}>{success}</div>}
@@ -168,90 +422,6 @@ function OverviewTab({ goal, currentUserId, onGoalUpdate }) {
   );
 }
 
-/* ─── Resources Tab (with edit) ────────────────────────────────────────────── */
-function ResourcesTab({ goal, onGoalUpdate }) {
-  const [editing,   setEditing]   = useState(false);
-  const [resources, setResources] = useState(goal.resources || []);
-  const [saving,    setSaving]    = useState(false);
-  const [error,     setError]     = useState("");
-
-  const addRes    = () => setResources(p => [...p, { name:"", url:"" }]);
-  const updateRes = (i, f, v) => setResources(p => p.map((r, idx) => idx===i ? { ...r, [f]:v } : r));
-  const removeRes = (i) => setResources(p => p.filter((_, idx) => idx!==i));
-
-  const handleSave = async () => {
-    const valid = resources.filter(r => r.name.trim() && r.url.trim());
-    setSaving(true); setError("");
-    try {
-      const res = await updateGoal(goal._id, { resources: valid });
-      onGoalUpdate({ ...goal, resources: valid, ...res.data.data });
-      setEditing(false);
-    } catch (err) { setError(err.response?.data?.message || "Failed to save resources"); }
-    finally { setSaving(false); }
-  };
-
-  const displayResources = editing ? resources : (goal.resources || []);
-
-  return (
-    <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <p style={{ fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"#52525b", margin:0 }}>Resources</p>
-        {goal.isOwner && (
-          editing ? (
-            <div style={{ display:"flex", gap:6 }}>
-              <button onClick={() => { setEditing(false); setResources(goal.resources||[]); }} style={{ padding:"4px 10px", borderRadius:6, border:"1px solid rgba(63,63,70,0.6)", background:"transparent", color:"#71717a", fontSize:11, fontWeight:600, cursor:"pointer" }}>Cancel</button>
-              <button onClick={handleSave} disabled={saving} style={{ padding:"4px 10px", borderRadius:6, border:"none", background:"linear-gradient(135deg,#f97316,#dc2626)", color:"white", fontSize:11, fontWeight:600, cursor:"pointer", opacity:saving?0.5:1 }}>{saving?"Saving…":"Save"}</button>
-            </div>
-          ) : (
-            <button onClick={() => setEditing(true)} style={{ fontSize:10, fontWeight:700, color:"#52525b", background:"rgba(39,39,42,0.5)", border:"1px solid rgba(63,63,70,0.4)", padding:"3px 10px", borderRadius:6, cursor:"pointer", transition:"all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.color="#f97316"; e.currentTarget.style.borderColor="rgba(249,115,22,0.3)"; }}
-              onMouseLeave={e => { e.currentTarget.style.color="#52525b"; e.currentTarget.style.borderColor="rgba(63,63,70,0.4)"; }}>
-              ✏ Edit
-            </button>
-          )
-        )}
-      </div>
-
-      {error && <div style={{ padding:"9px 13px", borderRadius:8, background:"rgba(220,38,38,0.07)", border:"1px solid rgba(220,38,38,0.2)", color:"#f87171", fontSize:12 }}>{error}</div>}
-
-      {editing ? (
-        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-          {resources.map((r, i) => (
-            <div key={i} style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
-              <input value={r.name} onChange={e => updateRes(i,"name",e.target.value)} placeholder="Name" style={{ ...IS, flex:"1 1 120px", fontSize:12, padding:"8px 11px" }} onFocus={fo} onBlur={bl} />
-              <input value={r.url}  onChange={e => updateRes(i,"url", e.target.value)} placeholder="URL"  style={{ ...IS, flex:"2 1 180px", fontSize:12, padding:"8px 11px" }} onFocus={fo} onBlur={bl} />
-              <button onClick={() => removeRes(i)} style={{ background:"rgba(239,68,68,0.07)", border:"1px solid rgba(239,68,68,0.15)", color:"#f87171", width:30, height:30, borderRadius:8, cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>×</button>
-            </div>
-          ))}
-          <button onClick={addRes} style={{ display:"flex", alignItems:"center", gap:5, padding:"7px 12px", borderRadius:8, background:"transparent", border:"1px dashed rgba(249,115,22,0.3)", color:"#f97316", fontSize:12, fontWeight:600, cursor:"pointer", width:"fit-content", transition:"all 0.15s" }}
-            onMouseEnter={e => e.currentTarget.style.background="rgba(249,115,22,0.06)"}
-            onMouseLeave={e => e.currentTarget.style.background="transparent"}>
-            + Add Resource
-          </button>
-        </div>
-      ) : (
-        <div>
-          {displayResources.length === 0 && <p style={{ fontSize:12, color:"#3f3f46", textAlign:"center", padding:"24px 0" }}>No resources attached.</p>}
-          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {displayResources.map((r, i) => (
-              <a key={i} href={r.url} target="_blank" rel="noreferrer"
-                style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px", borderRadius:10, background:"rgba(15,15,17,0.8)", border:"1px solid rgba(39,39,42,0.7)", textDecoration:"none", transition:"all 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor="rgba(249,115,22,0.4)"; e.currentTarget.style.background="rgba(249,115,22,0.04)"; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor="rgba(39,39,42,0.7)"; e.currentTarget.style.background="rgba(15,15,17,0.8)"; }}>
-                <div style={{ width:36, height:36, borderRadius:8, background:"rgba(249,115,22,0.1)", border:"1px solid rgba(249,115,22,0.18)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:16 }}>🔗</div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p style={{ fontSize:13, fontWeight:600, color:"#f4f4f5", margin:0 }}>{r.name}</p>
-                  <p style={{ fontSize:11, color:"#52525b", margin:"2px 0 0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{r.url}</p>
-                </div>
-                <span style={{ color:"#52525b", flexShrink:0 }}>↗</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ─── Verifications Tab ─────────────────────────────────────────────────────── */
 function VerificationsTab({ goal, currentUserId, onGoalUpdate }) {
@@ -504,7 +674,6 @@ export default function GoalDetailModal({ goal: initialGoal, onClose, onUpdate }
 
   const tabs = [
     { key:"overview",  label:"Overview" },
-    { key:"resources", label:"Resources" },
     { key:"logs",      label:"Logs" },
     ...(goal.type==="circle" ? [
       { key:"verifications", label:"Verify", badge:pendingVerifications },
@@ -557,7 +726,6 @@ export default function GoalDetailModal({ goal: initialGoal, onClose, onUpdate }
           
             <>
               {activeTab==="overview"      && <OverviewTab      goal={goal} currentUserId={currentUserId} onGoalUpdate={handleGoalUpdate} />}
-              {activeTab==="resources"     && <ResourcesTab     goal={goal} onGoalUpdate={handleGoalUpdate} />}
               {activeTab==="logs"          && <LogsTab          goalId={goal._id} isOwner={isOwner} isMember={isMember} />}
               {activeTab==="verifications" && <VerificationsTab goal={goal} currentUserId={currentUserId} onGoalUpdate={handleGoalUpdate} />}
               {activeTab==="leaderboard"   && <LeaderboardTab   goalId={goal._id} />}
