@@ -1,64 +1,56 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800;12..96,900&family=Geist:wght@300;400;500;600;700&display=swap');
 
+/* ── FONT OVERRIDES (swap Syne → Bricolage, DM Sans → Geist globally) ─────── */
+[style*="Syne"],    * [style*="'Syne'"]    { font-family: 'Bricolage Grotesque', sans-serif !important; }
+[style*="DM Sans"], * [style*="'DM Sans'"] { font-family: 'Geist', sans-serif !important; }
+[style*="DM Mono"], * [style*="'DM Mono'"] { font-family: 'Geist', sans-serif !important; }
+
+/* ── CSS VARIABLES (updated by ThemeContext via JS) ─────────────────────── */
 :root {
-  /* ── Backgrounds ── */
   --bg-base:        #080809;
   --bg-card:        #111113;
   --bg-card-alt:    #0f0f11;
   --bg-input:       #0d0d0f;
-  --bg-overlay:     rgba(8, 8, 9, 0.55);
-
-  /* ── Borders ── */
-  --border-default: rgba(39, 39, 42, 0.9);
-  --border-subtle:  rgba(39, 39, 42, 0.5);
-  --border-hover:   rgba(63, 63, 70, 0.6);
-
-  /* ── Text ── */
+  --bg-sidebar:     #0e0e10;
+  --border-default: rgba(39,39,42,0.9);
+  --border-subtle:  rgba(39,39,42,0.5);
+  --border-hover:   rgba(63,63,70,0.6);
+  --border-sidebar: rgba(255,255,255,0.05);
   --text-primary:   #f4f4f5;
   --text-secondary: #a1a1aa;
   --text-muted:     #71717a;
   --text-faint:     #52525b;
   --text-ghost:     #3f3f46;
-
-  /* ── Misc ── */
   --scrollbar:      #27272a;
-  --ring-track:     rgba(39, 39, 42, 0.8);
-
-  /* ── Fonts ── */
-  --font-display: 'Bricolage Grotesque', sans-serif;
-  --font-body:    'Geist', sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+/* ── BASE ─────────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: #080809;
-  color: #f4f4f5;
-  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Geist', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.2s;
 }
 
-/* Replace Syne everywhere with Bricolage Grotesque */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-}
-
-/* Any inline style using 'Syne' gets overridden via CSS custom property cascade */
-[style*="Syne"] {
-  font-family: var(--font-display) !important;
-}
-
-/* Any inline style using 'DM Sans' or 'DM Mono' gets overridden */
-[style*="DM Sans"],
-[style*="DM Mono"] {
-  font-family: var(--font-body) !important;
+  font-family: 'Bricolage Grotesque', sans-serif;
 }
 
 input, textarea, select, button {
-  font-family: var(--font-body);
+  font-family: 'Geist', sans-serif;
 }
+
+/* ── SCROLLBAR ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+/* ── DATE INPUT THEME ─────────────────────────────────────────────────────── */
+input[type="date"] { color-scheme: dark; }
+[data-theme="light"] input[type="date"] { color-scheme: light; }
