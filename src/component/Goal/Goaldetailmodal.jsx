@@ -20,6 +20,7 @@ const TabBtn = ({ active, onClick, children, badge }) => (
 /* ─── Overview Tab ─────────────────────────────────────────────────────────── */
 function OverviewTab({ goal, currentUserId, onGoalUpdate }) {
   const [proof,      setProof]      = useState("");
+  const [file, setFile] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error,      setError]      = useState("");
   const [success,    setSuccess]    = useState("");
@@ -63,16 +64,45 @@ const handleSaveResources = async () => {
   const isPending   = goal.completionRequests?.some(r => (r.userId?._id || r.userId)?.toString() === currentUserId?.toString() && r.status === "pending");
 
   const handleComplete = async () => {
-    if (goal.type === "circle" && !proof.trim()) { setError("Paste a proof URL to submit"); return; }
-    setSubmitting(true); setError(""); setSuccess("");
-    try {
-      const res = await markGoalComplete(goal._id, goal.type === "circle" ? { proof } : {});
-      onGoalUpdate({ ...goal, ...res.data.data });
-      setSuccess(goal.type === "circle" ? "Proof submitted! Awaiting peer verification." : "Goal marked as complete! 🎉");
-      setProof("");
-    } catch (err) { setError(err.response?.data?.message || "Failed"); }
-    finally { setSubmitting(false); }
-  };
+  if (goal.type === "circle" && !file) {
+    setError("Please upload proof file");
+    return;
+  }
+
+  console.log(file)
+
+  setSubmitting(true);
+  setError("");
+  setSuccess("");
+
+  try {
+    let res;
+
+    if (goal.type === "circle") {
+      const formData = new FormData();
+      formData.append("proof", file); // 👈 must match multer
+
+      res = await markGoalComplete(goal._id, formData);
+    } else {
+      res = await markGoalComplete(goal._id);
+    }
+
+    onGoalUpdate({ ...goal, ...res.data.data });
+
+    setSuccess(
+      goal.type === "circle"
+        ? "Proof submitted! Awaiting peer verification."
+        : "Goal marked as complete! 🎉"
+    );
+
+    setFile(null);
+
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const handleSaveEdit = async () => {
     if (!editTitle.trim() || !editEnd) return;
@@ -380,19 +410,31 @@ const handleSaveResources = async () => {
       {success && <div style={{ padding:"10px 14px", borderRadius:10, background:"rgba(34,197,94,0.07)", border:"1px solid rgba(34,197,94,0.2)", color:"#22c55e", fontSize:12 }}>{success}</div>}
 
       {/* Complete action */}
-      {goal.status !== "backlog" && !isCompleted && !isPending && (
+      {goal.status !==  !isCompleted && !isPending && (
         <div style={{ padding:16, borderRadius:12, background:"rgba(15,15,17,0.8)", border:"1px solid rgba(39,39,42,0.7)" }}>
           <p style={{ fontSize:11, fontWeight:700, color:"#a1a1aa", marginBottom:12, letterSpacing:"0.08em", textTransform:"uppercase" }}>
             {goal.type==="circle"?"Submit Completion Proof":"Mark Complete"}
           </p>
           {goal.type === "circle" && (
             <div style={{ marginBottom:10 }}>
-              <input value={proof} onChange={e => setProof(e.target.value)} placeholder="Paste proof URL (screenshot, video, doc…)"
-                style={IS} onFocus={fo} onBlur={bl} />
+                <input
+                type="file"
+                accept="image/*,video/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                style={{
+                 ...IS,
+                  cursor: "pointer",
+                  padding: "8px 11px",
+                  borderColor: file ? "rgba(34,197,94,0.3)" : "rgba(39,39,42,0.7)"
+      }}
+                onFocus={fo}
+                onBlur={bl}
+              />
+              
               <p style={{ fontSize:10, color:"#3f3f46", marginTop:5 }}>More than 50% of goal members must approve.</p>
             </div>
           )}
-          <button onClick={handleComplete} disabled={submitting||(goal.type==="circle"&&!proof.trim())}
+          <button onClick={handleComplete} 
             style={{ width:"100%", padding:11, borderRadius:10, border:"none", background:"linear-gradient(135deg,#22c55e,#16a34a)", color:"white", fontFamily:"'DM Sans',sans-serif", fontSize:13, fontWeight:600, cursor:"pointer", opacity:submitting||(goal.type==="circle"&&!proof.trim())?0.45:1, transition:"opacity 0.2s" }}>
             {submitting?"Submitting…":goal.type==="circle"?"📎 Submit for Verification":"✓ Mark as Complete"}
           </button>
