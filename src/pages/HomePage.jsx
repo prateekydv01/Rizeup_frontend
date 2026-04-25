@@ -11,6 +11,7 @@ import StatsCard     from "../component/Home/StatsCard.jsx";
 import TodayTodos    from "../component/Home/TodayTodos.jsx";
 import TodayHabits   from "../component/Home/TodayHabits.jsx";
 import CircleGoals   from "../component/Home/CircleGoals.jsx";
+import ActiveGoals   from "../component/Home/ActiveGoals.jsx";
 
 export default function HomePage() {
   const userData  = useSelector(state => state.auth.userData);
@@ -71,7 +72,7 @@ export default function HomePage() {
                   background: "linear-gradient(110deg,#ffffff 0%,#fb923c 45%,#ef4444 100%)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                 }}>
-                Welcome back, {firstName}
+                Welcome, {firstName} 
               </h1>
               <p className="text-zinc-500 text-xs tracking-wide mt-0.5">{today}</p>
             </div>
@@ -92,15 +93,15 @@ export default function HomePage() {
             <StatsCard />
           </div>
 
-          {/* Today section */}
           <Divider label="Today" />
           <TodayTodos onSectionResolved={setTodaySectionId} />
 
-          {/* Habits section */}
           <Divider label="Habits" />
           <TodayHabits />
 
-          {/* Circles section */}
+          <Divider label="Goals" />
+          <ActiveGoals />
+
           <Divider label="Circles" />
           <CircleGoals />
 

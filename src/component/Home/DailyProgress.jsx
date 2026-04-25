@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { postDailyCheckIn, fetchDailyCheckInStatus } from "../../api/checkIn";
-import { setUserData } from "../../store/auth.slice";   // adjust import if your action is named differently
+import { setUserData } from "../../store/auth.slice";
 
 function CircleProgress({ pct }) {
   const r = 30, c = 2 * Math.PI * r, dash = (pct / 100) * c;
@@ -37,20 +37,20 @@ export default function DailyProgress({ todaySectionId }) {
   const [loading,    setLoading]    = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // On mount: fetch real check-in status + latest streak
+  // On every mount (= every login / navigation to home): fetch fresh check-in status + streak
   useEffect(() => {
     fetchDailyCheckInStatus()
       .then(r => {
         const { checkedIn, streak } = r.data.data;
         setCheckedIn(checkedIn);
-        // Sync streak into Redux so StreakCard updates too
-        if (userData && streak !== undefined) {
-          dispatch(setUserData({ ...userData, streak }));
+        // Always sync latest streak from server into Redux → StreakCard updates instantly
+        if (streak !== undefined) {
+          dispatch(setUserData({ streak }));
         }
       })
       .catch(console.log)
       .finally(() => setLoading(false));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckIn = async () => {
     if (checkedIn || submitting) return;
@@ -59,9 +59,8 @@ export default function DailyProgress({ todaySectionId }) {
       const r = await postDailyCheckIn();
       const { streak } = r.data.data;
       setCheckedIn(true);
-      // Update streak in Redux → StreakCard re-renders instantly
-      if (userData && streak !== undefined) {
-        dispatch(setUserData({ ...userData, streak }));
+      if (streak !== undefined) {
+        dispatch(setUserData({ streak }));
       }
     } catch (e) {
       console.log(e);

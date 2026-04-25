@@ -45,10 +45,17 @@ export default function CircleGoals() {
 
           return (
             <div key={circle._id}
-              className="rounded-2xl p-4 flex items-center gap-3 transition-all duration-200"
+              onClick={() => navigate(`/circles/${circle._id}`)}
+              className="rounded-2xl p-4 flex items-center gap-3 transition-all duration-200 cursor-pointer"
               style={{ background: "linear-gradient(145deg,var(--bg-card),var(--bg-card-alt))", border: "1px solid rgba(39,39,42,0.9)" }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = `hsla(${hue},50%,50%,0.3)`}
-              onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-default)"}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = `hsla(${hue},50%,50%,0.3)`;
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = "var(--border-default)";
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
             >
               {/* Avatar */}
               <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0"
@@ -71,6 +78,9 @@ export default function CircleGoals() {
                   <span className="text-[9px] font-mono tracking-widest ml-1" style={{ color: "var(--text-ghost)" }}>{circle.code}</span>
                 </div>
               </div>
+
+              {/* Arrow indicator */}
+              <span className="text-[11px] transition-all duration-200 flex-shrink-0" style={{ color: "var(--text-ghost)" }}>→</span>
             </div>
           );
         })}

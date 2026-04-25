@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUserCircles } from "../../api/circle";
 import { getMyHabits } from "../../api/habit";
+import { getMyGoals } from "../../api/goal.js";
 
 const FlameIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -22,6 +23,7 @@ const UsersIcon = () => (
 export default function StatsCard() {
   const [circles, setCircles] = useState("—");
   const [habits,  setHabits]  = useState("—");
+  const [goals,   setGoals]   = useState("—");
 
   useEffect(() => {
     getUserCircles()
@@ -31,12 +33,16 @@ export default function StatsCard() {
     getMyHabits()
       .then(r => setHabits(r.data.data.filter(h => h.isActive).length))
       .catch(() => setHabits(0));
+
+    getMyGoals()
+      .then(r => setGoals(r.data.data.filter(g => g.status === "active").length))
+      .catch(() => setGoals(0));
   }, []);
 
   const rows = [
-    { icon: <FlameIcon />,  label: "Habits ongoing",  value: habits  },
-    { icon: <TargetIcon />, label: "Goals active",     value: "—"     },
-    { icon: <UsersIcon />,  label: "Circles joined",   value: circles },
+    { icon: <FlameIcon />,  label: "Habits ongoing", value: habits  },
+    { icon: <TargetIcon />, label: "Goals active",    value: goals   },
+    { icon: <UsersIcon />,  label: "Circles joined",  value: circles },
   ];
 
   return (
